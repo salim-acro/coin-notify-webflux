@@ -13,8 +13,8 @@ public class CoinEntity extends BasicEntity {
     @Id
     private Long id;
 
-    @Column("market")
-    private String market;
+    @Column("name")
+    private String name;
 
     @Column("korean_name")
     private String koreanName;
