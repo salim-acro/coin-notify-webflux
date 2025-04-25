@@ -11,10 +11,10 @@ import org.springframework.data.relational.core.mapping.Table;
 @Table("real_time_prices")
 public class RealTimePriceEntity extends BasicEntity {
 	@Id
-	private Long id; // 기본 키
+	private Long id;
 
-	@Column("coin_id") // coins 테이블의 외래 키 참조
-	private Long coinId;
+	@Column("market_id")
+	private Long marketId;
 
 	@Column("trade_date") // 최근 거래 일자 (UTC)
 	private String tradeDate;
