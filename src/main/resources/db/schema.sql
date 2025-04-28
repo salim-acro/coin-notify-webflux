@@ -1,4 +1,4 @@
-CREATE TABLE coins
+CREATE TABLE IF NOT EXISTS coins
 (
     id           SERIAL PRIMARY KEY,
     symbol       VARCHAR(255) UNIQUE,
@@ -9,7 +9,7 @@ CREATE TABLE coins
     deleted_at   TIMESTAMP DEFAULT NULL
 );
 
-CREATE TABLE markets
+CREATE TABLE IF NOT EXISTS markets
 (
     id           SERIAL PRIMARY KEY,
     market_code  VARCHAR(255) UNIQUE,
@@ -20,7 +20,7 @@ CREATE TABLE markets
     deleted_at   TIMESTAMP DEFAULT NULL
 );
 
-CREATE TABLE real_time_prices
+CREATE TABLE IF NOT EXISTS real_time_prices
 (
     id                   SERIAL PRIMARY KEY,                  -- 자동 증가하는 고유 ID
     market_id            BIGINT     NOT NULL,                 -- 코인 식별자 (coins 테이블의 PK)
