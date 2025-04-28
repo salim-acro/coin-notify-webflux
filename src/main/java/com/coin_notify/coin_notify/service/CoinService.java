@@ -49,12 +49,12 @@ public class CoinService {
 		return Flux.fromIterable(marketData)
 				.publishOn(Schedulers.boundedElastic())
 				.flatMap(data -> {
-					String market = data.get("market").asText();
+					String symbol = data.get("market").asText();
 					String koreanName = data.get("korean_name").asText();
 					String englishName = data.get("english_name").asText();
-					String coinSymbol = market.split("-")[1];
+					String coinSymbol = symbol.split("-")[1];
 
-					return coinRepository.existsBySymbolAndKoreanNameAndEnglishName(coinSymbol, koreanName, englishName)
+					return coinRepository.existsBySymbol(coinSymbol)
 							.flatMap(exists -> {
 								if (Boolean.TRUE.equals(exists)) {
 									System.out.println("Duplicate found, skipping: " + coinSymbol + " | " + koreanName + " | " + englishName);
