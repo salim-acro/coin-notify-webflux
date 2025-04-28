@@ -6,6 +6,10 @@ import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import reactor.core.publisher.Mono;
 
 public interface CoinRepository extends ReactiveCrudRepository<CoinEntity, Long> {
-	@Query("SELECT coins FROM coins")
-	Mono<Boolean> existsBySymbolAndKoreanNameAndEnglishName(String Name, String koreanName, String englishName);
+	@Query("""
+    SELECT CASE WHEN COUNT(*) > 0 THEN TRUE ELSE FALSE END
+    FROM coins
+    WHERE symbol = :symbol
+    """)
+	Mono<Boolean> existsBySymbol(String Symbol);
 }
