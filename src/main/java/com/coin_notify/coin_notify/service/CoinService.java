@@ -54,20 +54,19 @@ public class CoinService {
 					String englishName = data.get("english_name").asText();
 					String coinSymbol = market.split("-")[1];
 
-					return coinRepository.existsByNameAndKoreanNameAndEnglishName(coinSymbol, koreanName, englishName)
+					return coinRepository.existsBySymbolAndKoreanNameAndEnglishName(coinSymbol, koreanName, englishName)
 							.flatMap(exists -> {
 								if (Boolean.TRUE.equals(exists)) {
-									// 중복 발견 시, 에러를 무시하고 계속 처리
 									System.out.println("Duplicate found, skipping: " + coinSymbol + " | " + koreanName + " | " + englishName);
 									return Mono.empty();
 								} else {
 									CoinEntity coinEntity = new CoinEntity();
-									coinEntity.setName(coinSymbol);
+									coinEntity.setSymbol(coinSymbol);
 									coinEntity.setKoreanName(koreanName);
 									coinEntity.setEnglishName(englishName);
 
 									return coinRepository.save(coinEntity)
-											.doOnSuccess(saved -> System.out.println("Saved: " + saved.getName()));
+											.doOnSuccess(saved -> System.out.println("Saved: " + saved.getSymbol()));
 								}
 							})
 							.onErrorResume(error -> {
