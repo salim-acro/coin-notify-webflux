@@ -18,4 +18,7 @@ public class LikeMarketEntity extends BasicEntity {
 
 	@Column("market_id")
 	private Long marketId;
+
+	@Column("is_active")
+	private Boolean isActive;
 }
