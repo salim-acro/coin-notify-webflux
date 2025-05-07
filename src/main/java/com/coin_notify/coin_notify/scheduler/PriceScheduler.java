@@ -1,10 +1,8 @@
 package com.coin_notify.coin_notify.scheduler;
 
+import com.coin_notify.coin_notify.data.entity.NotificationEntity;
 import com.coin_notify.coin_notify.data.entity.RealTimePriceEntity;
-import com.coin_notify.coin_notify.data.repository.LikeMarketRepository;
-import com.coin_notify.coin_notify.data.repository.MarketRepository;
-import com.coin_notify.coin_notify.data.repository.RealTimePriceRepository;
-import com.coin_notify.coin_notify.data.repository.UserRepository;
+import com.coin_notify.coin_notify.data.repository.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
@@ -31,14 +29,23 @@ public class PriceScheduler implements CommandLineRunner {
     private final MarketRepository marketRepository;
     private final LikeMarketRepository likeMarketRepository;
     private final RealTimePriceRepository realTimePriceRepository;
+    private final NotificationRepository notificationRepository;
     private final ObjectMapper objectMapper;
     Map<UUID, Sinks.Many<ServerSentEvent<String>>> userSinkMap = new ConcurrentHashMap<>();
 
-    public PriceScheduler(UserRepository userRepository, MarketRepository marketRepository, LikeMarketRepository likeMarketRepository, RealTimePriceRepository realTimePriceRepository, ObjectMapper objectMapper) {
+    public PriceScheduler(
+            UserRepository userRepository,
+            MarketRepository marketRepository,
+            LikeMarketRepository likeMarketRepository,
+            RealTimePriceRepository realTimePriceRepository,
+            NotificationRepository notificationRepository,
+            ObjectMapper objectMapper)
+    {
         this.userRepository = userRepository;
         this.marketRepository = marketRepository;
         this.likeMarketRepository = likeMarketRepository;
         this.realTimePriceRepository = realTimePriceRepository;
+        this.notificationRepository = notificationRepository;
         this.objectMapper = objectMapper;
     }
 
@@ -127,24 +134,36 @@ public class PriceScheduler implements CommandLineRunner {
                     double previousPrice = previous.getTradePrice();
                     double changeRate = Math.abs((currentPrice - previousPrice) / previousPrice);
 
-                    String message = String.format(
-                            "📢 관심 종목 가격 변동 : marketId %s | %s | %s | %s | 이전: %.2f -> 현재: %.2f (%.10f%%)%n",
-                            marketId, marketCode, marketKrName, marketEnName, previousPrice,
-                            currentPrice, changeRate * 100);
+                    if(currentPrice != previousPrice) {
+                        String message = String.format(
+                                "📢 관심 종목 가격 변동 : marketId %s | %s | %s | %s | 이전: %.2f -> 현재: %.2f (%.10f%%)",
+                                marketId, marketCode, marketKrName, marketEnName, previousPrice,
+                                currentPrice, changeRate * 100);
 
-                    Long userId = likeMarket.getUserId();
-                    return userRepository.findById(userId).flatMap(userEntity -> {
-                        Sinks.Many<ServerSentEvent<String>> sink = userSinkMap.get(
-                                userEntity.getUuid());
-                        if (sink != null) {
-                            sink.tryEmitNext(ServerSentEvent.builder(message).build());
-                        }
+                        Long userId = likeMarket.getUserId();
+                        return userRepository.findById(userId).flatMap(userEntity -> {
+                            Sinks.Many<ServerSentEvent<String>> sink = userSinkMap.get(
+                                    userEntity.getUuid());
+                            if (sink != null) {
+                                sink.tryEmitNext(ServerSentEvent.builder(message).build());
+                            }
 
-                        return Mono.empty();
-                    });
+                            return saveNotification(userId, marketId, message);
+                        });
+                    }
+                    return Mono.empty();
                 });
             });
         }).then();
+    }
+
+    private Mono<Void> saveNotification(Long userId, Long marketId, String message) {
+        NotificationEntity notification = new NotificationEntity();
+        notification.setUserId(userId);
+        notification.setMarketId(marketId);
+        notification.setLog(message);
+
+        return notificationRepository.save(notification).then();
     }
 
     private Mono<String> callUpbitApiWithMarkets(String markets) {
