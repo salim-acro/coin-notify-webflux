@@ -136,7 +136,7 @@ public class PriceScheduler implements CommandLineRunner {
 
                     if(currentPrice != previousPrice) {
                         String message = String.format(
-                                "📢 관심 종목 가격 변동 : marketId %s | %s | %s | %s | 이전: %.2f -> 현재: %.2f (%.10f%%)",
+                                "📢 관심 종목 가격 변동 : marketId %s | %s | %s | %s | 이전: %.10f -> 현재: %.10f (%.10f%%)",
                                 marketId, marketCode, marketKrName, marketEnName, previousPrice,
                                 currentPrice, changeRate * 100);
 
