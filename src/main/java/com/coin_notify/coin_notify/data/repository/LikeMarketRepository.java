@@ -7,5 +7,5 @@ import reactor.core.publisher.Mono;
 
 public interface LikeMarketRepository extends ReactiveCrudRepository<LikeMarketEntity, Long> {
 	Mono<LikeMarketEntity> findByUserIdAndMarketId(Long userId, Long marketId);
-	Flux<LikeMarketEntity> findAll();
+	Flux<LikeMarketEntity> findByIsActiveTrue();
 }
