@@ -109,14 +109,18 @@ public class MarketService {
     }
 
     private Mono<Void> saveMarketData(JsonNode marketData) {
-        return Flux.fromIterable(marketData).map(data -> {
-            MarketEntity marketEntity = new MarketEntity();
-            marketEntity.setMarketCode(data.get("market").asText());
-            marketEntity.setKoreanName(data.get("korean_name").asText());
-            marketEntity.setEnglishName(data.get("english_name").asText());
-            return marketEntity;
-        }).flatMap(marketRepository::save).doOnNext(
-                saved -> System.out.println("Saved: " + saved.getMarketCode())).doOnError(
-                error -> System.err.println("Error saving: " + error.getMessage())).then();
+        return Flux.fromIterable(marketData)
+                .filter(data -> !data.get("market").asText().contains("LOOM"))
+                .map(data -> {
+                    MarketEntity marketEntity = new MarketEntity();
+                    marketEntity.setMarketCode(data.get("market").asText());
+                    marketEntity.setKoreanName(data.get("korean_name").asText());
+                    marketEntity.setEnglishName(data.get("english_name").asText());
+                    return marketEntity;
+                })
+                .flatMap(marketRepository::save)
+                .doOnNext(saved -> System.out.println("Saved: " + saved.getMarketCode()))
+                .doOnError(error -> System.err.println("Error saving: " + error.getMessage()))
+                .then();
     }
 }
