@@ -184,6 +184,7 @@ public class PriceScheduler implements CommandLineRunner {
                 return Mono.error(new RuntimeException("API 호출 실패: " + response.statusCode()));
             }
         } catch (Exception e) {
+            System.err.println("오류 " + e.getMessage());
             e.printStackTrace();
             return Mono.error(new RuntimeException("API 호출 중 예외 발생", e));
         }
