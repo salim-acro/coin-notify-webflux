@@ -5,7 +5,6 @@
 | Framework | Spring Boot + WebFlux |
 | 실시간 전송    | SSE or WebSocket      |
 | 빌드        | Gradle                |
-| 포맷터       | Google Java Format    |
 
 # 요구사항
 
