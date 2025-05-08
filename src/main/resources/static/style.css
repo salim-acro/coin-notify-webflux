@@ -7,6 +7,19 @@ ul {
     padding: 0;
 }
 
+.container {
+    display: flex;
+    gap: 20px;
+}
+
+.section {
+    flex: 1;
+}
+
+h2 {
+    margin-top: 0;
+}
+
 .like-button {
     background-color: #4CAF50;
     color: white;
@@ -26,14 +39,14 @@ ul {
     background-color: #ff5722;
 }
 
-.market-item {
+.market-item, .coin-item {
     display: flex;
     justify-content: flex-start;
     align-items: center;
     margin-bottom: 10px;
 }
 
-.market-item span {
+.market-item span, .coin-item span {
     margin-left: 10px;
 }
 

@@ -9,8 +9,17 @@
 
 <div id="messages"></div>
 
-<h2>Market List</h2>
-<div id="market-list"></div>
+<div class="container">
+    <div class="section">
+        <h2>종목(Market) 목록</h2>
+        <div id="market-list"></div>
+    </div>
+
+    <div class="section">
+        <h2>코인(Coin) 목록</h2>
+        <div id="coin-list"></div>
+    </div>
+</div>
 
 <script>
     window.onload = function () {
@@ -103,6 +112,66 @@
                     })
                     .catch(error => {
                         console.error('Error fetching market list:', error);
+                    });
+
+
+                fetch('/coin-list')
+                    .then(response => response.json())
+                    .then(data => {
+                        const coinListDiv = document.getElementById('coin-list');
+                        if (data && data.resultData) {
+                            const coinList = data.resultData;
+                            const ul = document.createElement('ul');
+                            coinList.forEach(coin => {
+                                const li = document.createElement('li');
+                                li.classList.add('coin-item');
+
+                                const likeButton = document.createElement('button');
+                                likeButton.classList.add('like-button');
+                                likeButton.textContent = '좋아요';
+                                if(coin.likeCoins && coin.likeCoins.isActive) {
+                                    likeButton.classList.add('active');
+                                }
+
+                                likeButton.addEventListener('click', function () {
+                                    const coinId = coin.id;
+
+                                    fetch(`/api/coins/like/${coinId}`, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                        }
+                                    })
+                                        .then(response => response.json())
+                                        .then(responseData => {
+                                            if (responseData.resultCode === "A200") {
+                                                if (responseData.resultData === 'true') {
+                                                    likeButton.classList.add('active');
+                                                } else {
+                                                    likeButton.classList.remove('active');
+                                                }
+                                            }
+                                        })
+                                        .catch(error => {
+                                            console.error('Error:', error);
+                                        });
+                                });
+
+                                const coinInfo = document.createElement('span');
+                                console.log("coin info " + coinInfo);
+                                coinInfo.textContent = `Coin : ${coin.symbol}, Korean Name: ${coin.koreanName}, English Name: ${coin.englishName}`;
+
+                                li.appendChild(likeButton);
+                                li.appendChild(coinInfo);
+                                ul.appendChild(li);
+                            });
+                            coinListDiv.appendChild(ul);
+                        } else {
+                            coinListDiv.textContent = 'No coins available.';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching coin list:', error);
                     });
             })
             .catch(error => {
