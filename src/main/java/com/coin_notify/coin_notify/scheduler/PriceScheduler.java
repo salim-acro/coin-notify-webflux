@@ -110,11 +110,12 @@ public class PriceScheduler implements CommandLineRunner {
                     });
                 });
             } catch (Exception e) {
+                System.err.println("-- 오류 발생: " + e.getMessage());
                 e.printStackTrace();
                 return Flux.empty();
             }
         }).flatMap(realTimePriceRepository::save).then(checkLikeMarket()).subscribe(unused -> {
-                }, error -> System.err.println("-- 에러 발생: " + error.getMessage()),
+                }, error -> System.err.println("-- 저장 시 오류 발생: " + error.getMessage()),
                 () -> System.out.println("fetchRealTimePrice + checkLikeMarket 완료"));
     }
 
@@ -134,7 +135,7 @@ public class PriceScheduler implements CommandLineRunner {
                     double previousPrice = previous.getTradePrice();
                     double changeRate = Math.abs((currentPrice - previousPrice) / previousPrice);
 
-                    if(currentPrice != previousPrice) {
+                    if (currentPrice != previousPrice) {
                         String message = String.format(
                                 "📢 관심 종목 가격 변동 : marketId %s | %s | %s | %s | 이전: %.10f -> 현재: %.10f (%.10f%%)",
                                 marketId, marketCode, marketKrName, marketEnName, previousPrice,
@@ -167,10 +168,6 @@ public class PriceScheduler implements CommandLineRunner {
     }
 
     private Mono<String> callUpbitApiWithMarkets(String markets) {
-        if (markets.contains("LOOM")) {
-            return Mono.just("Skipped due to LOOM market");
-        }
-
         try {
             String serverUrl = "https://api.upbit.com/v1/ticker?markets=" + markets;
 
