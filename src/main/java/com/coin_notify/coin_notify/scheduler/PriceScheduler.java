@@ -167,6 +167,10 @@ public class PriceScheduler implements CommandLineRunner {
     }
 
     private Mono<String> callUpbitApiWithMarkets(String markets) {
+        if (markets.contains("LOOM")) {
+            return Mono.just("Skipped due to LOOM market");
+        }
+
         try {
             String serverUrl = "https://api.upbit.com/v1/ticker?markets=" + markets;
 
